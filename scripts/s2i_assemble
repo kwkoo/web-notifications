@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "Custom assemble script"
+
+set -e
+
+pushd /tmp/src
+cp -r docroot /opt/app-root/
+echo "Current dir is $(pwd)"
+GOPATH=$(pwd) go build -o /opt/app-root/gobinary github.com/kwkoo/webnotifications/cmd/webnotifications
+popd
