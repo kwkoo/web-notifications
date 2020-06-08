@@ -61,6 +61,13 @@ deployocp:
 	oc import-image \
 	  --confirm \
 	  docker.io/centos/go-toolset-7-centos7:latest
+	@/bin/echo -n "Waiting for Go imagestreamtag to be created..."
+	@while true; do \
+	  oc get istag go-toolset-7-centos7:latest 2>/dev/null 1>/dev/null;  \
+	  if [ $$? -eq 0 ]; then /bin/echo "done"; break; fi; \
+	  /bin/echo -n "."; \
+	  sleep 1; \
+	done
 	oc new-build \
 	  --name $(PACKAGE) \
 	  --binary \
