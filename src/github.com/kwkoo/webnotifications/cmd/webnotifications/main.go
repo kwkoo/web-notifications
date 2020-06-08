@@ -56,19 +56,11 @@ func main() {
 	log.Print("interrupt signal received, initiating web server shutdown...")
 	signal.Reset(os.Interrupt)
 
+	wh.CloseHub()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	server.Shutdown(ctx)
 
 	wg.Wait()
 	log.Print("Shutdown successful")
-
-	//log.Printf("Listening on port %v", config.Port)
-
-	/*
-		http.HandleFunc(credentialsURI, getCredentials)
-		http.HandleFunc(adminURI, admin)
-		http.Handle("/", http.FileServer(http.Dir(config.DocRoot)))
-		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil))
-	*/
 }

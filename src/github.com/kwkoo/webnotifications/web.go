@@ -28,6 +28,11 @@ func InitWebHandler(docRoot string, hub *Hub) WebHandler {
 	return wh
 }
 
+// CloseHub closes all channels.
+func (wh WebHandler) CloseHub() {
+	wh.hub.Close()
+}
+
 func (wh WebHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// do not log requests from probes
 	//
@@ -103,12 +108,27 @@ func (wh WebHandler) handleStream(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 	chanID, outChan := wh.hub.GetOutChannel()
+
+	// we need to read from the websocket in order to know when the client
+	// terminates the connection
+	go func() {
+		for {
+			if _, _, err := c.NextReader(); err != nil {
+				wh.hub.CloseOutChannel(chanID)
+				c.Close()
+				break
+			}
+		}
+		log.Printf("read goroutine terminating for channel ID %d", chanID)
+	}()
+
 	defer wh.hub.CloseOutChannel(chanID)
 	for msg := range outChan {
 		if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
 			return
 		}
 	}
+	log.Printf("writes terminated for channel ID %d", chanID)
 }
 
 func (wh WebHandler) handleMessages(w http.ResponseWriter, r *http.Request) {

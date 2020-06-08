@@ -10,7 +10,7 @@ VERSION="0.1"
 
 .PHONY: run build clean test coverage image runcontainer
 run:
-	@GOPATH=$(GOPATH) \
+	-@GOPATH=$(GOPATH) \
 	GOBIN=$(GOBIN) \
 	DOCROOT=$(GOPATH)/docroot \
 	BUFFERSIZE=3 \
