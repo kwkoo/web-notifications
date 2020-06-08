@@ -37,6 +37,7 @@ coverage.html
 # Visual Studio Code
 src/golang.org/x/**
 src/github.com/acroca
+src/github.com/cweill
 src/github.com/go-delve
 src/github.com/karrick
 src/github.com/mdempsky

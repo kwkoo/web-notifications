@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/gorilla/websocket"
 )
 
 // WebHandler is a struct with methods for handling web requests.
 type WebHandler struct {
 	fileServer http.Handler
 	hub        *Hub
+	wsupgrader websocket.Upgrader
 }
 
 // InitWebHandler initializes the WebHandler struct.
@@ -20,6 +23,7 @@ func InitWebHandler(docRoot string, hub *Hub) WebHandler {
 	wh := WebHandler{
 		fileServer: http.FileServer(http.Dir(docRoot)),
 		hub:        hub,
+		wsupgrader: websocket.Upgrader{},
 	}
 	return wh
 }
@@ -48,6 +52,10 @@ func (wh WebHandler) handleAPI(path string, w http.ResponseWriter, r *http.Reque
 	}
 	if strings.HasPrefix(path, "messages") {
 		wh.handleMessages(w, r)
+		return
+	}
+	if strings.HasPrefix(path, "stream") {
+		wh.handleStream(w, r)
 		return
 	}
 	http.Error(w, "invalid API call", http.StatusNotFound)
@@ -85,6 +93,22 @@ func (wh WebHandler) handleSend(path string, w http.ResponseWriter, r *http.Requ
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprint(w, "OK")
 	return
+}
+
+func (wh WebHandler) handleStream(w http.ResponseWriter, r *http.Request) {
+	c, err := wh.wsupgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("could not upgrade to websocket: %v", err), http.StatusInternalServerError)
+		return
+	}
+	defer c.Close()
+	chanID, outChan := wh.hub.GetOutChannel()
+	defer wh.hub.CloseOutChannel(chanID)
+	for msg := range outChan {
+		if err := c.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+			return
+		}
+	}
 }
 
 func (wh WebHandler) handleMessages(w http.ResponseWriter, r *http.Request) {

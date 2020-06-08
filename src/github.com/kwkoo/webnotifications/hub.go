@@ -3,6 +3,7 @@ package webnotifications
 import (
 	"fmt"
 	"io"
+	"log"
 	"sync"
 )
 
@@ -14,7 +15,7 @@ type Hub struct {
 	msgMux   sync.RWMutex
 	in       chan string
 	out      map[int]chan string
-	messages []string
+	messages []LogMessage
 }
 
 // InitHub returns an initialized Hub struct.
@@ -40,6 +41,7 @@ func (h *Hub) GetOutChannel() (int, chan string) {
 	h.mux.Lock()
 	defer h.mux.Unlock()
 	chanID := h.counter
+	log.Printf("registered client with ID %d", chanID)
 	h.counter++
 	c := make(chan string)
 	h.out[chanID] = c
@@ -56,6 +58,7 @@ func (h *Hub) CloseOutChannel(chanID int) {
 		return
 	}
 	delete(h.out, chanID)
+	log.Printf("deregistered client with ID %d", chanID)
 	close(c)
 }
 
@@ -73,15 +76,17 @@ func (h *Hub) Close() {
 // Broadcast sends the given message to all registered listeners.
 func (h *Hub) Broadcast(m string) {
 	h.msgMux.Lock()
-	h.messages = append(h.messages, m)
+	msg := NewLogMessage(m)
+	h.messages = append(h.messages, msg)
 	if len(h.messages) > h.bufSize {
 		h.messages = h.messages[len(h.messages)-h.bufSize:]
 	}
 	h.msgMux.Unlock()
 
+	s := msg.String()
 	h.mux.Lock()
 	for _, c := range h.out {
-		c <- m
+		c <- s
 	}
 	h.mux.Unlock()
 }
@@ -99,6 +104,6 @@ func (h *Hub) dumpToChannel(c chan string) {
 	h.msgMux.RLock()
 	defer h.msgMux.RUnlock()
 	for _, m := range h.messages {
-		c <- m
+		c <- m.String()
 	}
 }

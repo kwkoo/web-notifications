@@ -5,6 +5,23 @@
   <style>
   </style>
 </head>
-<body>
+<body onload="initPage()">
+  <h2>Notifications</h2>
+  <div>
+    <textarea id="log" rows="10" cols="80" readonly></textarea>
+  </div>
+  <script type="text/javascript">
+    function initPage() {
+      var websocket = new WebSocket("ws://" + window.location.host + "/api/stream");
+      websocket.onmessage = function (event) {
+        var log = document.getElementById("log");
+        if (log.value.length > 0) {
+          log.value += "\r\n";
+        }
+        log.value += event.data;
+        log.scrollTop = log.scrollHeight;
+      }
+    }
+  </script>
 </body>
 </html>
