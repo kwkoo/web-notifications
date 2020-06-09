@@ -11,15 +11,24 @@
     <textarea id="log" rows="10" cols="80" readonly></textarea>
   </div>
   <script type="text/javascript">
-    function initPage() {
-      var websocket = new WebSocket("ws://" + window.location.host + "/api/stream");
-      websocket.onmessage = function (event) {
-        var log = document.getElementById("log");
-        if (log.value.length > 0) {
+    var log;
+  
+    function logMessage(message) {
+      if (log.value.length > 0) {
           log.value += "\r\n";
         }
-        log.value += event.data;
+        log.value += message;
         log.scrollTop = log.scrollHeight;
+    }
+  
+    function initPage() {
+      log = document.getElementById("log");
+      let websocket = new WebSocket("ws://" + window.location.host + "/api/stream");
+      websocket.onmessage = function (event) {
+        logMessage(event.data);
+      }
+      websocket.onclose = function (event) {
+        logMessage("*** websocket closed - reload page to reactivate");
       }
     }
   </script>
