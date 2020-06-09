@@ -1,5 +1,6 @@
 PREFIX=github.com/kwkoo
 PACKAGE=webnotifications
+OCP_PROJ=demo
 
 GOPATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 GOBIN=$(GOPATH)/bin
@@ -74,7 +75,7 @@ deployocp:
 	  --labels=app=$(PACKAGE) \
 	  -i go-toolset-7-centos7:latest
 	oc start-build \
-	  onboarding \
+	  $(PACKAGE) \
 	  --from-dir=/tmp/ocp \
 	  --follow
 	rm -rf /tmp/ocp
@@ -82,9 +83,14 @@ deployocp:
 	oc new-app \
 	  --name $(PACKAGE) \
 	  -i $(PACKAGE) \
-	  -e DOCROOT=/opt/app-root/docroot
+	  -e DOCROOT=/opt/app-root/docroot \
+	  -e TZ=Asia/Singapore
 	
 	oc expose dc/$(PACKAGE) --port=8080
 	oc expose svc/$(PACKAGE)
 	@echo "Deployment successful"
 	@echo "The application is now accessible at http://`oc get route/$(PACKAGE) -o jsonpath='{ .spec.host }'`"
+
+cleanocp:
+	-oc delete all -l app=$(PACKAGE) -n $(OCP_PROJ)
+	-rm -rf /tmp/ocp
