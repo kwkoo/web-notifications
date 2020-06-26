@@ -39,8 +39,13 @@ coverage:
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=$(GOPATH)/$(COVERAGEOUTPUT) -o $(GOPATH)/$(COVERAGEHTML)
 	open $(GOPATH)/$(COVERAGEHTML)
 
-image: 
+dockerimage: 
 	docker build --rm -t $(IMAGENAME):$(VERSION) $(GOPATH)
+	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):$(VERSION)
+	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):latest
+	docker login quay.io
+	docker push quay.io/$(IMAGENAME):$(VERSION)
+	docker push quay.io/$(IMAGENAME):latest
 
 runcontainer:
 	docker run \
@@ -48,8 +53,7 @@ runcontainer:
 	  -it \
 	  --name $(PACKAGE) \
 	  -p 8080:8080 \
-	  -v $(GOPATH)/config:/config \
-	  -e DOCROOT=/docroot \
+	  -e TZ=Asia/Singapore \
 	  $(IMAGENAME):$(VERSION)
 
 deployocp:
