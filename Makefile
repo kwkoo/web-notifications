@@ -15,6 +15,7 @@ run:
 	GOBIN=$(GOBIN) \
 	DOCROOT=$(GOPATH)/docroot \
 	BUFFERSIZE=3 \
+	PINGINTERVAL=10 \
 	go run $(GOPATH)/src/$(PREFIX)/$(PACKAGE)/cmd/$(PACKAGE)/main.go
 
 build:

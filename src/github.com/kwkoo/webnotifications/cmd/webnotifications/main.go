@@ -16,9 +16,10 @@ import (
 
 func main() {
 	config := struct {
-		Port       int    `usage:"HTTP listener port" default:"8080"`
-		DocRoot    string `usage:"HTML document root" mandatory:"true"`
-		BufferSize int    `usage:"Number of notifications to keep" default:"10"`
+		Port         int    `usage:"HTTP listener port" default:"8080"`
+		DocRoot      string `usage:"HTML document root" mandatory:"true"`
+		BufferSize   int    `usage:"Number of notifications to keep" default:"10"`
+		PingInterval int    `usage:"Frequency of pings" default:"0"`
 	}{}
 
 	if err := configparser.Parse(&config); err != nil {
@@ -27,7 +28,7 @@ func main() {
 
 	// todo: Init buffer and channels here
 
-	wh := webnotifications.InitWebHandler(config.DocRoot, webnotifications.InitHub(config.BufferSize))
+	wh := webnotifications.InitWebHandler(config.DocRoot, webnotifications.InitHub(config.BufferSize, config.PingInterval))
 
 	// Setup signal handling.
 	shutdown := make(chan os.Signal)

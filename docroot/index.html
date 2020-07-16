@@ -25,7 +25,14 @@
       log = document.getElementById("log");
       let websocket = new WebSocket("ws://" + window.location.host + "/api/stream");
       websocket.onmessage = function (event) {
-        logMessage(event.data);
+        var payload = event.data;
+        if (payload.length < 1) { return; }
+        if (payload.startsWith("1")) {
+          console.log("ping received");
+          return;
+        }
+        payload = payload.substring(1);
+        logMessage(payload);
       }
       websocket.onclose = function (event) {
         logMessage("*** websocket closed - reload page to reactivate");
