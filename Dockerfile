@@ -1,4 +1,4 @@
-FROM golang:1.14.4 as builder
+FROM golang:1.15.0 as builder
 ARG PREFIX=github.com/kwkoo
 ARG PACKAGE=webnotifications
 LABEL builder=true
@@ -7,8 +7,7 @@ RUN set -x && \
 	cd /go/src/${PREFIX}/${PACKAGE}/cmd/${PACKAGE} && \
 	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/${PACKAGE} .
 
-# Using centos instead of ubi8 because of timezone issues
-FROM centos:7
+FROM scratch
 LABEL maintainer="kin.wai.koo@gmail.com"
 LABEL builder=false
 COPY --from=builder /go/bin/${PACKAGE} /

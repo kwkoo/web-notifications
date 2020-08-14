@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/kwkoo/configparser"
 	"github.com/kwkoo/webnotifications"

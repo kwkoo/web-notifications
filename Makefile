@@ -7,7 +7,7 @@ GOBIN=$(GOPATH)/bin
 COVERAGEOUTPUT=coverage.out
 COVERAGEHTML=coverage.html
 IMAGENAME="kwkoo/$(PACKAGE)"
-VERSION="0.1"
+VERSION="0.2"
 
 .PHONY: run build clean test coverage image runcontainer
 run:
@@ -46,7 +46,7 @@ dockerimage:
 	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):latest
 	docker login quay.io
 	docker push quay.io/$(IMAGENAME):$(VERSION)
-	docker push quay.io/$(IMAGENAME):latest
+	#docker push quay.io/$(IMAGENAME):latest
 
 runcontainer:
 	docker run \
