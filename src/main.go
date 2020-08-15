@@ -11,8 +11,9 @@ import (
 	"time"
 	_ "time/tzdata"
 
+	"github.com/kwkoo/webnotifications/pkg"
+
 	"github.com/kwkoo/configparser"
-	"github.com/kwkoo/webnotifications"
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 
 	// todo: Init buffer and channels here
 
-	wh := webnotifications.InitWebHandler(config.DocRoot, webnotifications.InitHub(config.BufferSize, config.PingInterval))
+	wh := pkg.InitWebHandler(config.DocRoot, pkg.InitHub(config.BufferSize, config.PingInterval))
 
 	// Setup signal handling.
 	shutdown := make(chan os.Signal)

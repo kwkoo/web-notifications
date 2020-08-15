@@ -1,13 +1,12 @@
 #!/bin/bash
 
-INSTALL_URL=github.com/kwkoo/webnotifications/cmd/webnotifications
-
 echo "Custom assemble script"
 
 set -e
 
-pushd /tmp/src
+cd /tmp/src
+echo "Copying docroot..."
 cp -r docroot /opt/app-root/
 echo "Current dir is $(pwd)"
-GOPATH=$(pwd) go build -o /opt/app-root/gobinary $INSTALL_URL
-popd
+cd src
+go build -o /opt/app-root/gobinary

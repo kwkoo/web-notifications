@@ -2,8 +2,7 @@ PREFIX=github.com/kwkoo
 PACKAGE=webnotifications
 OCP_PROJ=demo
 
-GOPATH:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-GOBIN=$(GOPATH)/bin
+BASE:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 COVERAGEOUTPUT=coverage.out
 COVERAGEHTML=coverage.html
 IMAGENAME="kwkoo/$(PACKAGE)"
@@ -11,42 +10,41 @@ VERSION="0.2"
 
 .PHONY: run build clean test coverage image runcontainer
 run:
-	-@GOPATH=$(GOPATH) \
-	GOBIN=$(GOBIN) \
-	DOCROOT=$(GOPATH)/docroot \
+	-@cd $(BASE)/src \
+	&& \
+	DOCROOT=$(BASE)/docroot \
 	BUFFERSIZE=3 \
 	PINGINTERVAL=10 \
-	go run $(GOPATH)/src/$(PREFIX)/$(PACKAGE)/cmd/$(PACKAGE)/main.go
+	go run main.go
 
 build:
 	@echo "Building..."
-	@GOPATH=$(GOPATH) \
-	GOBIN=$(GOBIN) \
-	go build -o $(GOBIN)/$(PACKAGE) $(PREFIX)/$(PACKAGE)/cmd/$(PACKAGE)
+	@cd $(BASE)/src \
+	&& \
+	go build -o $(BASE)/bin/$(PACKAGE) .
 
 clean:
-	rm -f \
-	  $(GOPATH)/bin/$(PACKAGE) \
-	  $(GOPATH)/pkg/*/$(PACKAGE).a \
-	  $(GOPATH)/$(COVERAGEOUTPUT) \
-	  $(GOPATH)/$(COVERAGEHTML)
+	@rm -rf \
+	  $(BASE)/bin/$(PACKAGE) \
+	  $(BASE)/$(COVERAGEOUTPUT) \
+	  $(BASE)/$(COVERAGEHTML)
 
 test:
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean -testcache
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -race $(PREFIX)/$(PACKAGE)
+	@cd $(BASE)/src && go clean -testcache
+	@cd $(BASE)/src && go test -race $(PREFIX)/$(PACKAGE)
 
 coverage:
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test $(PREFIX)/$(PACKAGE) -cover -coverprofile=$(GOPATH)/$(COVERAGEOUTPUT)
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=$(GOPATH)/$(COVERAGEOUTPUT) -o $(GOPATH)/$(COVERAGEHTML)
-	open $(GOPATH)/$(COVERAGEHTML)
+	@cd $(BASE)/src && go test $(PREFIX)/$(PACKAGE) -cover -coverprofile=$(BASE)/$(COVERAGEOUTPUT)
+	@cd $(BASE)/src && go tool cover -html=$(BASE)/$(COVERAGEOUTPUT) -o $(BASE)/$(COVERAGEHTML)
+	open $(BASE)/$(COVERAGEHTML)
 
 dockerimage: 
-	docker build --rm -t $(IMAGENAME):$(VERSION) $(GOPATH)
+	docker build --rm -t $(IMAGENAME):$(VERSION) $(BASE)
 	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):$(VERSION)
 	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):latest
 	docker login quay.io
 	docker push quay.io/$(IMAGENAME):$(VERSION)
-	#docker push quay.io/$(IMAGENAME):latest
+	docker push quay.io/$(IMAGENAME):latest
 
 runcontainer:
 	docker run \
@@ -62,8 +60,8 @@ deployocp:
 	-rm -rf /tmp/ocp
 	mkdir /tmp/ocp
 	mkdir -p /tmp/ocp/.s2i/bin
-	cp $(GOPATH)/scripts/s2i_assemble /tmp/ocp/.s2i/bin/assemble
-	cp -r $(GOPATH)/docroot $(GOPATH)/src /tmp/ocp/
+	cp $(BASE)/scripts/s2i_assemble /tmp/ocp/.s2i/bin/assemble
+	cp -r $(BASE)/docroot $(BASE)/src /tmp/ocp/
 	oc import-image \
 	  --confirm \
 	  docker.io/kwkoo/go-toolset-7-centos7:1.15
@@ -91,7 +89,7 @@ deployocp:
 	  -e DOCROOT=/opt/app-root/docroot \
 	  -e TZ=Asia/Singapore
 	
-	oc expose dc/$(PACKAGE) --port=8080
+	oc expose deployment/$(PACKAGE) --port=8080
 	oc expose svc/$(PACKAGE)
 	@echo "Deployment successful"
 	@echo "The application is now accessible at http://`oc get route/$(PACKAGE) -o jsonpath='{ .spec.host }'`"

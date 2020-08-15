@@ -1,4 +1,4 @@
-package webnotifications
+package pkg
 
 import (
 	"fmt"
