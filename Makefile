@@ -96,4 +96,6 @@ deployocp:
 
 cleanocp:
 	-oc delete all -l app=$(PACKAGE) -n $(OCP_PROJ)
+	-oc delete istag/go-toolset-7-centos7:1.15 -n $(OCP_PROJ)
+	-oc delete is/go-toolset-7-centos7 -n $(OCP_PROJ)
 	-rm -rf /tmp/ocp
