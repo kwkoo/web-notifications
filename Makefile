@@ -63,7 +63,6 @@ deployocp:
 	  --name $(PACKAGE) \
 	  --binary \
 	  --docker-image=ghcr.io/kwkoo/go-toolset-7-centos7:1.15.2 \
-	  -e DOCROOT=/opt/app-root/docroot \
 	  -e TZ=Asia/Singapore
 
 	@/bin/echo -n "Waiting for S2I builder istag to appear..."
