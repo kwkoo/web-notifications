@@ -8,5 +8,4 @@ cd /tmp/src
 echo "Copying docroot..."
 cp -r docroot /opt/app-root/
 echo "Current dir is $(pwd)"
-cd src
 go build -o /opt/app-root/gobinary
