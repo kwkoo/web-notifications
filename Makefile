@@ -64,10 +64,10 @@ deployocp:
 	cp -r $(BASE)/docroot $(BASE)/src /tmp/ocp/
 	oc import-image \
 	  --confirm \
-	  docker.io/kwkoo/go-toolset-7-centos7:1.15
+	  ghcr.io/kwkoo/go-toolset-7-centos7:1.15.2
 	@/bin/echo -n "Waiting for Go imagestreamtag to be created..."
 	@while true; do \
-	  oc get istag go-toolset-7-centos7:1.15 2>/dev/null 1>/dev/null;  \
+	  oc get istag go-toolset-7-centos7:1.15.2 2>/dev/null 1>/dev/null;  \
 	  if [ $$? -eq 0 ]; then /bin/echo "done"; break; fi; \
 	  /bin/echo -n "."; \
 	  sleep 1; \
@@ -76,7 +76,7 @@ deployocp:
 	  --name $(PACKAGE) \
 	  --binary \
 	  --labels=app=$(PACKAGE) \
-	  -i go-toolset-7-centos7:1.15
+	  -i go-toolset-7-centos7:1.15.2
 	oc start-build \
 	  $(PACKAGE) \
 	  --from-dir=/tmp/ocp \
@@ -96,6 +96,6 @@ deployocp:
 
 cleanocp:
 	-oc delete all -l app=$(PACKAGE) -n $(OCP_PROJ)
-	-oc delete istag/go-toolset-7-centos7:1.15 -n $(OCP_PROJ)
+	-oc delete istag/go-toolset-7-centos7:1.15.2 -n $(OCP_PROJ)
 	-oc delete is/go-toolset-7-centos7 -n $(OCP_PROJ)
 	-rm -rf /tmp/ocp
