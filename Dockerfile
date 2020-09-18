@@ -1,4 +1,4 @@
-FROM golang:1.15.0 as builder
+FROM golang:1.15.2 as builder
 ARG PREFIX=github.com/kwkoo
 ARG PACKAGE=webnotifications
 LABEL builder=true
@@ -15,7 +15,7 @@ LABEL maintainer="kin.wai.koo@gmail.com"
 LABEL builder=false
 COPY --from=builder /go/bin/${PACKAGE} /
 
-COPY docroot/* /docroot/
+COPY src/docroot/* /docroot/
 
 USER 1001
 EXPOSE 8080
