@@ -13,6 +13,7 @@ RUN \
 FROM scratch
 LABEL maintainer="kin.wai.koo@gmail.com"
 LABEL builder=false
+LABEL org.opencontainers.image.source="https://github.com/kwkoo/web-notifications"
 COPY --from=builder /go/bin/${PACKAGE} /
 
 COPY src/docroot/* /docroot/

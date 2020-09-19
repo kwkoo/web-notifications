@@ -40,11 +40,11 @@ coverage:
 
 dockerimage: 
 	docker build --rm -t $(IMAGENAME):$(VERSION) $(BASE)
-	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):$(VERSION)
-	docker tag $(IMAGENAME):$(VERSION) quay.io/$(IMAGENAME):latest
-	docker login quay.io
-	docker push quay.io/$(IMAGENAME):$(VERSION)
-	docker push quay.io/$(IMAGENAME):latest
+	docker tag $(IMAGENAME):$(VERSION) ghcr.io/$(IMAGENAME):$(VERSION)
+	docker tag $(IMAGENAME):$(VERSION) ghcr.io/$(IMAGENAME):latest
+	docker login ghcr.io
+	docker push ghcr.io/$(IMAGENAME):$(VERSION)
+	docker push ghcr.io/$(IMAGENAME):latest
 
 runcontainer:
 	docker run \
